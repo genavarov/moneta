@@ -1678,6 +1678,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
                 if(zerocoinItem.IsUsed == false
                         && zerocoinItem.randomness != 0
                         && zerocoinItem.serialNumber != 0
+                        && zerocoinItem.nHeight != -1
                         && zerocoinItem.nHeight + 6 < nBestHeight){
                     zerocoinSelected = zerocoinItem;
                     selectedPubcoin = true;
