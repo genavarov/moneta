@@ -1705,8 +1705,12 @@ Value spendzerocoin(const Array& params, bool fHelp)
 
     // Wallet comments
     CWalletTx wtx;
+    CBigNum coinSerial;
+    uint256 txHash;
+    std::string zcSelectedValue;
+    bool zcSelectedIsUsed;
 
-    string strError = pwalletMain->SpendZerocoin(nAmount, wtx);
+    string strError = pwalletMain->SpendZerocoin(nAmount, wtx, coinSerial, txHash, zcSelectedValue, zcSelectedIsUsed);
 
     if (strError != "")
         throw JSONRPCError(RPC_WALLET_ERROR, strError);

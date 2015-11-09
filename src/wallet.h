@@ -191,13 +191,13 @@ public:
     bool CreateZerocoinMintTransaction(CScript pubCoin, int64 nValue,
                            CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, std::string& strFailReason, const CCoinControl *coinControl=NULL);
     bool CreateZerocoinSpendTransaction(int64 nValue,
-                                    CWalletTx& wtxNew, CReserveKey& reservekey, std::string& strFailReason);
+                                    CWalletTx& wtxNew, CReserveKey& reservekey, CBigNum& coinSerial, uint256& txHash, std::string& zcSelectedValue, bool& zcSelectedIsUsed,  std::string& strFailReason);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
     bool CommitZerocoinSpendTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
     std::string SendMoney(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
     std::string SendMoneyToDestination(const CTxDestination &address, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
     std::string MintZerocoin(CScript pubCoin, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
-    std::string SpendZerocoin(int64 nValue, CWalletTx& wtxNew);
+    std::string SpendZerocoin(int64 nValue, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, std::string& zcSelectedValue, bool& zcSelectedIsUsed);
     bool CreateZerocoinMintModel();
     bool CreateZerocoinSpendModel();
 
