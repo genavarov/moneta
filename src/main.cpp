@@ -785,12 +785,44 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                 if(!isVerifyDB){
                                     CWalletDB walletdb(pwalletMain->strWalletFile);
                                     walletdb.WriteZerocoinAccumulator(accumulator);
+                                }else{
+                                    pwalletMain = new CWallet("wallet.dat");
+                                    CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+                                    walletdb.WriteZerocoinAccumulator(accumulator);
                                 }
                                 break;
                             }
 
                         }
                     }
+
+                    /*if(!passVerify){
+                        std::map<uint64, CBigNum>::iterator it;
+                        for (it=orderMintTxReverse.begin(); it!=orderMintTxReverse.end(); ++it){
+                            printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
+                            libzerocoin::PublicCoin pubCoinTemp(ZCParams, it->second, (libzerocoin::CoinDenomination)(1));
+                            if(!pubCoinTemp.validate()){
+                                return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                            }
+                            accumulatorReverse += pubCoinTemp;
+                            if (newSpend.Verify(accumulatorReverse, newMetadata)) {
+                                printf("COIN SPEND TX DID VERIFY - REVERSE!\n");
+                                passVerify = true;
+                                // Save the accumulator to be used in future
+                                if(!isVerifyDB){
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+                                    walletdb.WriteZerocoinAccumulator(accumulatorReverse);
+                                }else{
+                                    pwalletMain = new CWallet("wallet.dat");
+                                    CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+                                    walletdb.WriteZerocoinAccumulator(accumulatorReverse);
+                                }
+                                break;
+                            }
+                        }
+                    }*/
 
                     if(passVerify){
 
