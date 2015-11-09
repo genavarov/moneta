@@ -4794,7 +4794,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 
             if (tx.IsZerocoinSpend())
             {
-                mempool.countZCSpend--;
+                //mempool.countZCSpend--;
                 // Size limits
                 unsigned int nTxSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
 
@@ -4892,7 +4892,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         }
 
         printf("mempool.countZCSpend = %d\n", mempool.countZCSpend);
-        if(mempool.countZCSpend != 0) return NULL;
+        //if(mempool.countZCSpend != 0) return NULL;
 
         TxPriorityCompare comparer(fSortedByFee);
         std::make_heap(vecPriority.begin(), vecPriority.end(), comparer);
