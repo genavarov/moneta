@@ -748,6 +748,7 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
 
                     libzerocoin::Accumulator accumulator(ZCParams);
                     libzerocoin::Accumulator accumulatorFromDB(ZCParams);
+                    libzerocoin::Accumulator accumulatorReverse(ZCParams);
 
                     bool passVerify = false;
 
@@ -797,7 +798,7 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                         }
                     }
 
-                    /*if(!passVerify){
+                    if(!passVerify){
                         std::map<uint64, CBigNum>::iterator it;
                         for (it=orderMintTxReverse.begin(); it!=orderMintTxReverse.end(); ++it){
                             printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
@@ -822,7 +823,7 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                 break;
                             }
                         }
-                    }*/
+                    }
 
                     if(passVerify){
 
