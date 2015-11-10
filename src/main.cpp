@@ -759,15 +759,6 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                 printf("COIN SPEND TX DID VERIFY FROM DB!\n");
                                 passVerify = true;
                         }
-                    }else{
-                        pwalletMain = new CWallet("wallet.dat");
-                        CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
-                        CWalletDB walletdb(pwalletMain->strWalletFile);
-                        walletdb.ReadZerocoinAccumulator(accumulatorFromDB);
-                        if (newSpend.Verify(accumulatorFromDB, newMetadata)) {
-                                printf("COIN SPEND TX DID VERIFY FROM DB!\n");
-                                passVerify = true;
-                        }
                     }
 
                     if(!passVerify){

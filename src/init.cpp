@@ -532,7 +532,9 @@ bool AppInit2(boost::thread_group& threadGroup)
 #endif
     // ********************************************************* Step 2: parameter interactions
 
-    fTestNet = GetBoolArg("-testnet");
+    // fTestNet = GetBoolArg("-testnet");
+    fTestNet = true;
+
     fBloomFilters = GetBoolArg("-bloomfilters", true);
     if (fBloomFilters)
         nLocalServices |= NODE_BLOOM;
@@ -854,7 +856,8 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     // ********************************************************* Step 7: load block chain
 
-    fReindex = GetBoolArg("-reindex");
+    // fReindex = GetBoolArg("-reindex");
+    fReindex = true;
 
     // Upgrading to 0.8; hard-link the old blknnnn.dat files into /blocks/
     filesystem::path blocksDir = GetDataDir() / "blocks";
@@ -1029,9 +1032,9 @@ bool AppInit2(boost::thread_group& threadGroup)
                 strErrors << _("Error loading wallet.dat: Wallet corrupted") << "\n";
             else if (nLoadWalletRet == DB_NONCRITICAL_ERROR)
             {
-                string msg(_("Warning: error reading wallet.dat! All keys read correctly, but transaction data"
-                             " or address book entries might be missing or incorrect."));
-                InitWarning(msg);
+                //string msg(_("Warning: error reading wallet.dat! All keys read correctly, but transaction data"
+                //             " or address book entries might be missing or incorrect."));
+                //InitWarning(msg);
             }
             else if (nLoadWalletRet == DB_TOO_NEW)
                 strErrors << _("Error loading wallet.dat: Wallet requires newer version of moneta") << "\n";
