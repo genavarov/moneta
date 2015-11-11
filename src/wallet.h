@@ -191,13 +191,13 @@ public:
     bool CreateZerocoinMintTransaction(CScript pubCoin, int64 nValue,
                            CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, std::string& strFailReason, const CCoinControl *coinControl=NULL);
     bool CreateZerocoinSpendTransaction(int64 nValue,
-                                    CWalletTx& wtxNew, CReserveKey& reservekey, CBigNum& coinSerial, uint256& txHash, std::string& zcSelectedValue, bool& zcSelectedIsUsed,  std::string& strFailReason);
+                                    CWalletTx& wtxNew, CReserveKey& reservekey, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed,  std::string& strFailReason);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
     bool CommitZerocoinSpendTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
     std::string SendMoney(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
     std::string SendMoneyToDestination(const CTxDestination &address, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
     std::string MintZerocoin(CScript pubCoin, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
-    std::string SpendZerocoin(int64 nValue, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, std::string& zcSelectedValue, bool& zcSelectedIsUsed);
+    std::string SpendZerocoin(int64 nValue, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed);
     bool CreateZerocoinMintModel();
     bool CreateZerocoinSpendModel();
 
@@ -926,6 +926,36 @@ public:
         READWRITE(nHeight);
     )
 };
+
+
+class CZerocoinSpendEntry
+{
+public:
+    Bignum coinSerial;
+    uint256 hashTx;
+    Bignum pubCoin;
+
+    CZerocoinSpendEntry()
+    {
+        SetNull();
+    }
+
+    void SetNull()
+    {
+        coinSerial = 0;
+        hashTx = 0;
+        pubCoin = 0;
+    }
+
+
+    IMPLEMENT_SERIALIZE
+    (
+        READWRITE(coinSerial);
+        READWRITE(hashTx);
+        READWRITE(pubCoin);
+    )
+};
+
 
 bool GetWalletFile(CWallet* pwallet, std::string &strWalletFileOut);
 

@@ -825,15 +825,30 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                         if(!isVerifyDB){
                             CBigNum serialNumber = newSpend.getCoinSerialNumber();
                             CWalletDB walletdb(pwalletMain->strWalletFile);
-                            map<CBigNum, uint256> listCoinSpendSerial;
+
+                            std::list<CZerocoinSpendEntry> listCoinSpendSerial;
                             walletdb.ListCoinSpendSerial(listCoinSpendSerial);
-                            BOOST_FOREACH(PAIRTYPE(const CBigNum, uint256)& item, listCoinSpendSerial)
-                            {
-                                if(item.first == serialNumber && item.second != hashTx){
+                            BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
+                                if(item.coinSerial == serialNumber && item.hashTx != hashTx){
                                     return state.DoS(100, error("CTransaction::CheckTransaction() : the CoinSpend serial has been used"));
                                 }
+
+                                if(item.coinSerial == serialNumber && item.hashTx == hashTx && item.pubCoin != 0){
+                                    CZerocoinEntry entry;
+                                    entry.IsUsed = true;
+                                    entry.value = item.pubCoin;
+                                    entry.randomness = 0;
+                                    entry.serialNumber = 0;
+                                    walletdb.WriteZerocoinEntry(entry);
+                                    // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+                                }
                             }
-                            walletdb.WriteCoinSpendSerialEntry(serialNumber, hashTx);
+
+                            CZerocoinSpendEntry zccoinSpend;
+                            zccoinSpend.coinSerial = serialNumber;
+                            zccoinSpend.hashTx = hashTx;
+                            zccoinSpend.pubCoin = 0;
+                            walletdb.WriteCoinSpendSerialEntry(zccoinSpend);
                         }
 
                     }else{
@@ -1410,8 +1425,8 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
 }
 
 static const int64 nTargetTimespan = 60 * 60; // 60 minutes between retargets
-static const int64 nTargetSpacing = 10 * 60; // 10 minute blocks
-static const int64 nInterval = nTargetTimespan / nTargetSpacing; // retargets every 6 blocks
+static const int64 nTargetSpacing = 1 * 60; // 1 minute blocks
+static const int64 nInterval = nTargetTimespan / nTargetSpacing; // retargets every 60 blocks
 
 //
 // minimum amount of work that could possibly be required nTime after
@@ -1421,8 +1436,8 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 {
     // Testnet has min-difficulty blocks
     // after nTargetSpacing*16 time between blocks:
-    if (fTestNet && nTime > nTargetSpacing*16)
-        return bnProofOfWorkLimit.GetCompact();
+    //if (fTestNet && nTime > nTargetSpacing*16)
+    //    return bnProofOfWorkLimit.GetCompact();
 
     CBigNum bnResult;
     bnResult.SetCompact(nBase);
@@ -1435,10 +1450,8 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
     }
     if (bnResult > bnProofOfWorkLimit)
         bnResult = bnProofOfWorkLimit;
+
     return bnResult.GetCompact();
-
-
-    return bnProofOfWorkLimit.GetCompact();
 }
 
 
@@ -1532,7 +1545,7 @@ unsigned int static BorisRidiculouslyNamedDifficultyFunction(const CBlockIndex* 
 
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
-    static const uint32_t        BlocksTargetSpacing                        = 10 * 60; // 10 minutes
+    static const uint32_t        BlocksTargetSpacing                        = 1 * 60; // 1 minutes
         unsigned int                TimeDaySeconds                                = 60 * 60 * 24;
         int64                                PastSecondsMin                                = TimeDaySeconds * 0.25; // 21600
         int64                                PastSecondsMax                                = TimeDaySeconds * 7;// 604800

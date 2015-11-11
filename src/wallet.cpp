@@ -1437,7 +1437,7 @@ bool CWallet::CreateZerocoinSpendModel(){
 
     CBigNum coinSerial;
     uint256 txHash;
-    std::string zcSelectedValue;
+    CBigNum zcSelectedValue;
     bool zcSelectedIsUsed;
 
     string strError = SpendZerocoin(nAmount, wtx, coinSerial, txHash, zcSelectedValue, zcSelectedIsUsed);
@@ -1445,8 +1445,12 @@ bool CWallet::CreateZerocoinSpendModel(){
     if (strError != "")
         return false;
 
-    NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
-    if(!CWalletDB(strWalletFile).WriteCoinSpendSerialEntry(coinSerial, txHash))
+    // NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+    CZerocoinSpendEntry entry;
+    entry.coinSerial = coinSerial;
+    entry.hashTx = txHash;
+    entry.pubCoin = zcSelectedValue;
+    if(!CWalletDB(strWalletFile).WriteCoinSpendSerialEntry(entry))
         return false;
     return true;
 
@@ -1632,7 +1636,7 @@ bool CWallet::CreateZerocoinMintTransaction(const vector<pair<CScript, int64> >&
 
 
 bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
-                                CWalletTx& wtxNew, CReserveKey& reservekey, CBigNum& coinSerial, uint256& txHash, std::string& zcSelectedValue, bool& zcSelectedIsUsed,  std::string& strFailReason)
+                                CWalletTx& wtxNew, CReserveKey& reservekey, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed,  std::string& strFailReason)
 {
     if (nValue < 0)
     {
@@ -1848,15 +1852,15 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
                 return false;
             }
 
-            zerocoinSelected.IsUsed = true;
+            /*zerocoinSelected.IsUsed = true;
             zerocoinSelected.randomness = 0;
             zerocoinSelected.serialNumber = 0;
-            CWalletDB(strWalletFile).WriteZerocoinEntry(zerocoinSelected);
+            CWalletDB(strWalletFile).WriteZerocoinEntry(zerocoinSelected);*/
 
-            map<CBigNum, uint256> listCoinSpendSerial;
+            std::list<CZerocoinSpendEntry> listCoinSpendSerial;
             CWalletDB(strWalletFile).ListCoinSpendSerial(listCoinSpendSerial);
-            BOOST_FOREACH(PAIRTYPE(const CBigNum, uint256)& item, listCoinSpendSerial){
-                if(spend.getCoinSerialNumber() == item.first){
+            BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
+                if(spend.getCoinSerialNumber() == item.coinSerial){
                     strFailReason = _("Zerocoin spend has been used");
                     return false;
                 }
@@ -1864,7 +1868,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
 
             coinSerial = spend.getCoinSerialNumber();
             txHash = wtxNew.GetHash();
-            zcSelectedValue = zerocoinSelected.value.GetHex();
+            zcSelectedValue = zerocoinSelected.value;
             zcSelectedIsUsed = zerocoinSelected.IsUsed;
 
         }
@@ -2069,7 +2073,7 @@ string CWallet::MintZerocoin(CScript pubCoin, int64 nValue, CWalletTx& wtxNew, b
     return "";
 }
 
-string CWallet::SpendZerocoin(int64 nValue, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, std::string& zcSelectedValue, bool& zcSelectedIsUsed)
+string CWallet::SpendZerocoin(int64 nValue, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed)
 {
     // Check amount
     if (nValue <= 0)

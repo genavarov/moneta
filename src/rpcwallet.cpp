@@ -1707,13 +1707,20 @@ Value spendzerocoin(const Array& params, bool fHelp)
     CWalletTx wtx;
     CBigNum coinSerial;
     uint256 txHash;
-    std::string zcSelectedValue;
+    CBigNum zcSelectedValue;
     bool zcSelectedIsUsed;
 
     string strError = pwalletMain->SpendZerocoin(nAmount, wtx, coinSerial, txHash, zcSelectedValue, zcSelectedIsUsed);
 
     if (strError != "")
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
+
+    CZerocoinSpendEntry entry;
+    entry.coinSerial = coinSerial;
+    entry.hashTx = txHash;
+    entry.pubCoin = zcSelectedValue;
+    if(!CWalletDB(pwalletMain->strWalletFile).WriteCoinSpendSerialEntry(entry))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: Cannot write coin serial number into wallet.");
 
     return wtx.GetHash().GetHex();
 

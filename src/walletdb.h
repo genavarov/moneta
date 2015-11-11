@@ -12,6 +12,7 @@ class CKeyPool;
 class CAccount;
 class CAccountingEntry;
 class CZerocoinEntry;
+class CZerocoinSpendEntry;
 
 /** Error statuses for the wallet database */
 enum DBErrors
@@ -158,8 +159,8 @@ public:
     bool WriteZerocoinEntry(const CZerocoinEntry& zerocoin);
     bool EarseZerocoinEntry(const CZerocoinEntry& zerocoin);
     void ListPubCoin(std::list<CZerocoinEntry>& listPubCoin);
-    void ListCoinSpendSerial(std::map<CBigNum, uint256>& listCoinSpendSerial);
-    bool WriteCoinSpendSerialEntry(const CBigNum& coinSpendSerial, uint256 hashTx);
+    void ListCoinSpendSerial(std::list<CZerocoinSpendEntry>& listCoinSpendSerial);
+    bool WriteCoinSpendSerialEntry(const CZerocoinSpendEntry& zerocoinSpend);
     bool WriteZerocoinAccumulator(libzerocoin::Accumulator accumulator);
     bool ReadZerocoinAccumulator(libzerocoin::Accumulator& accumulator);
 

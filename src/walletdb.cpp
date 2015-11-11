@@ -53,9 +53,9 @@ bool CWalletDB::WriteAccountingEntry(const CAccountingEntry& acentry)
     return WriteAccountingEntry(++nAccountingEntryNumber, acentry);
 }
 
-bool CWalletDB::WriteCoinSpendSerialEntry(const CBigNum& coinSpendSerial, uint256 hashTx)
+bool CWalletDB::WriteCoinSpendSerialEntry(const CZerocoinSpendEntry& zerocoinSpend)
 {
-    return Write(boost::make_tuple(string("zcserial"), coinSpendSerial, hashTx), true, true);
+    return Write(make_pair(string("zcserial"), zerocoinSpend.coinSerial), zerocoinSpend, true);
 }
 
 bool CWalletDB::WriteZerocoinAccumulator(libzerocoin::Accumulator accumulator)
@@ -120,7 +120,7 @@ void CWalletDB::ListPubCoin(std::list<CZerocoinEntry>& listPubCoin)
     pcursor->close();
 }
 
-void CWalletDB::ListCoinSpendSerial(std::map<CBigNum, uint256>& listCoinSpendSerial)
+void CWalletDB::ListCoinSpendSerial(std::list<CZerocoinSpendEntry>& listCoinSpendSerial)
 {
     Dbc* pcursor = GetCursor();
     if (!pcursor)
@@ -131,7 +131,7 @@ void CWalletDB::ListCoinSpendSerial(std::map<CBigNum, uint256>& listCoinSpendSer
         // Read next record
         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         if (fFlags == DB_SET_RANGE)
-            ssKey << boost::make_tuple(string("zcserial"), CBigNum(0), uint256(0));
+            ssKey << make_pair(string("zcserial"), CBigNum(0));
         CDataStream ssValue(SER_DISK, CLIENT_VERSION);
         int ret = ReadAtCursor(pcursor, ssKey, ssValue, fFlags);
         fFlags = DB_NEXT;
@@ -149,13 +149,13 @@ void CWalletDB::ListCoinSpendSerial(std::map<CBigNum, uint256>& listCoinSpendSer
         if (strType != "zcserial")
             break;
 
-        CBigNum zcserial;
-        ssKey >> zcserial;
+        CBigNum value;
+        ssKey >> value;
 
-        uint256 hashTx;
-        ssKey >> hashTx;
+        CZerocoinSpendEntry zerocoinSpendItem;
+        ssValue >> zerocoinSpendItem;
 
-        listCoinSpendSerial[zcserial] = hashTx;
+        listCoinSpendSerial.push_back(zerocoinSpendItem);
     }
 
     pcursor->close();
