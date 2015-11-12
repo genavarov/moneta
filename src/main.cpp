@@ -841,6 +841,7 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                     entry.serialNumber = 0;
                                     walletdb.WriteZerocoinEntry(entry);
                                     // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+                                    pwalletMain->NotifyZerocoinChanged(pwalletMain, item.pubCoin.GetHex(), entry.IsUsed ? "Used" : "New", CT_UPDATED);
                                 }
                             }
 
