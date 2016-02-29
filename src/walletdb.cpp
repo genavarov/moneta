@@ -58,14 +58,14 @@ bool CWalletDB::WriteCoinSpendSerialEntry(const CZerocoinSpendEntry& zerocoinSpe
     return Write(make_pair(string("zcserial"), zerocoinSpend.coinSerial), zerocoinSpend, true);
 }
 
-bool CWalletDB::WriteZerocoinAccumulator(libzerocoin::Accumulator accumulator)
+bool CWalletDB::WriteZerocoinAccumulator(libzerocoin::Accumulator accumulator, libzerocoin::CoinDenomination denomination)
 {
-    return Write(std::string("zcaccumulator"), accumulator);
+    return Write(make_pair(std::string("zcaccumulator"), denomination), accumulator);
 }
 
-bool CWalletDB::ReadZerocoinAccumulator(libzerocoin::Accumulator& accumulator)
+bool CWalletDB::ReadZerocoinAccumulator(libzerocoin::Accumulator& accumulator, libzerocoin::CoinDenomination denomination)
 {
-    return Read(std::string("zcaccumulator"), accumulator);
+    return Read(make_pair(std::string("zcaccumulator"), denomination), accumulator);
 }
 
 bool CWalletDB::WriteZerocoinEntry(const CZerocoinEntry& zerocoin)

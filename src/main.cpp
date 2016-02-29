@@ -584,9 +584,21 @@ bool setParams = bnTrustedModulus.SetHexBool(ZEROCOIN_MODULUS);
 // Set up the Zerocoin Params object
 static libzerocoin::Params *ZCParams = new libzerocoin::Params(bnTrustedModulus);
 
-std::map<CBigNum,uint64> orderMintTx;
-std::map<uint64, CBigNum> orderMintTxReverse;
-uint64 orderMintTxId = 1;
+std::map<CBigNum,uint64> orderMintTxLOVELACE;
+std::map<uint64, CBigNum> orderMintTxReverseLOVELACE;
+uint64 orderMintTxIdLOVELACE = 1;
+std::map<CBigNum,uint64> orderMintTxGOLDWASSER;
+std::map<uint64, CBigNum> orderMintTxReverseGOLDWASSER;
+uint64 orderMintTxIdGOLDWASSER = 1;
+std::map<CBigNum,uint64> orderMintTxRACKOFF;
+std::map<uint64, CBigNum> orderMintTxReverseRACKOFF;
+uint64 orderMintTxIdRACKOFF = 1;
+std::map<CBigNum,uint64> orderMintTxPEDERSEN;
+std::map<uint64, CBigNum> orderMintTxReversePEDERSEN;
+uint64 orderMintTxIdPEDERSEN = 1;
+std::map<CBigNum,uint64> orderMintTxWILLIAMSON;
+std::map<uint64, CBigNum> orderMintTxReverseWILLIAMSON;
+uint64 orderMintTxIdWILLIAMSON = 1;
 
 bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, bool isVerifyDB, int nHeight) const
 {
@@ -643,11 +655,6 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
             if (!txout.scriptPubKey.empty() && txout.scriptPubKey.IsZerocoinMint()){
 
 
-                // Check txout value shouldn't more than 1
-                if (txout.nValue != 1 * COIN){
-                    return state.DoS(100, error("CTransaction::CheckTransaction() : txout.nValue is not correct"));
-                }
-
                 vector<unsigned char> vchZeroMint;
                 vchZeroMint.insert(vchZeroMint.end(), txout.scriptPubKey.begin() + 6, txout.scriptPubKey.begin() + txout.scriptPubKey.size());
 
@@ -655,32 +662,112 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                 CBigNum pubCoin;
                 pubCoin.setvch(vchZeroMint);
 
+                libzerocoin::CoinDenomination denomination;
 
-                libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, (libzerocoin::CoinDenomination)(1));
-                if(!checkPubCoin.validate()){
-                    return state.DoS(100, error("CTransaction::CheckTransaction() : PubCoin is not validate"));
-                }
-
-                if(nHeight != -1){
-                    std::pair<std::map<CBigNum, uint64>::iterator,bool> ret;
-                    ret = orderMintTx.insert(std::pair<CBigNum, uint64>(pubCoin, orderMintTxId));
-                    if (ret.second != false) {
-                        orderMintTxReverse.insert(std::pair<uint64, CBigNum>(orderMintTxId, pubCoin));
-                        printf("TxOut : %s\n", txout.scriptPubKey.ToString().c_str());
-                        printf("ID %d Mint Pubcoin = %s\n", orderMintTxId, pubCoin.GetHex().c_str());
-                        orderMintTxId++;
+                if (txout.nValue == libzerocoin::ZQ_LOVELACE * COIN){
+                    denomination = libzerocoin::ZQ_LOVELACE;
+                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_LOVELACE);
+                    if(!checkPubCoin.validate()){
+                        return state.DoS(100, error("CTransaction::CheckTransaction() : PubCoin is not validate"));
                     }
+
+                    if(nHeight != -1){
+                        std::pair<std::map<CBigNum, uint64>::iterator,bool> ret;
+                        ret = orderMintTxLOVELACE.insert(std::pair<CBigNum, uint64>(pubCoin, orderMintTxIdLOVELACE));
+                        if (ret.second != false) {
+                            orderMintTxReverseLOVELACE.insert(std::pair<uint64, CBigNum>(orderMintTxIdLOVELACE, pubCoin));
+                            printf("TxOut : %s\n", txout.scriptPubKey.ToString().c_str());
+                            printf("ID %d Mint Pubcoin = %s\n", orderMintTxIdLOVELACE, pubCoin.GetHex().c_str());
+                            orderMintTxIdLOVELACE++;
+                        }
+                    }
+
+                }else if(txout.nValue == libzerocoin::ZQ_GOLDWASSER * COIN){
+                    denomination = libzerocoin::ZQ_GOLDWASSER;
+                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_GOLDWASSER);
+                    if(!checkPubCoin.validate()){
+                        return state.DoS(100, error("CTransaction::CheckTransaction() : PubCoin is not validate"));
+                    }
+
+                    if(nHeight != -1){
+                        std::pair<std::map<CBigNum, uint64>::iterator,bool> ret;
+                        ret = orderMintTxGOLDWASSER.insert(std::pair<CBigNum, uint64>(pubCoin, orderMintTxIdGOLDWASSER));
+                        if (ret.second != false) {
+                            orderMintTxReverseGOLDWASSER.insert(std::pair<uint64, CBigNum>(orderMintTxIdGOLDWASSER, pubCoin));
+                            printf("TxOut : %s\n", txout.scriptPubKey.ToString().c_str());
+                            printf("ID %d Mint Pubcoin = %s\n", orderMintTxIdGOLDWASSER, pubCoin.GetHex().c_str());
+                            orderMintTxIdGOLDWASSER++;
+                        }
+                    }
+
+
+                }else if(txout.nValue == libzerocoin::ZQ_RACKOFF * COIN){
+                    denomination = libzerocoin::ZQ_RACKOFF;
+                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_RACKOFF);
+                    if(!checkPubCoin.validate()){
+                        return state.DoS(100, error("CTransaction::CheckTransaction() : PubCoin is not validate"));
+                    }
+
+                    if(nHeight != -1){
+                        std::pair<std::map<CBigNum, uint64>::iterator,bool> ret;
+                        ret = orderMintTxRACKOFF.insert(std::pair<CBigNum, uint64>(pubCoin, orderMintTxIdRACKOFF));
+                        if (ret.second != false) {
+                            orderMintTxReverseRACKOFF.insert(std::pair<uint64, CBigNum>(orderMintTxIdRACKOFF, pubCoin));
+                            printf("TxOut : %s\n", txout.scriptPubKey.ToString().c_str());
+                            printf("ID %d Mint Pubcoin = %s\n", orderMintTxIdRACKOFF, pubCoin.GetHex().c_str());
+                            orderMintTxIdRACKOFF++;
+                        }
+                    }
+
+                }else if(txout.nValue == libzerocoin::ZQ_PEDERSEN * COIN){
+                    denomination = libzerocoin::ZQ_PEDERSEN;
+                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_PEDERSEN);
+                    if(!checkPubCoin.validate()){
+                        return state.DoS(100, error("CTransaction::CheckTransaction() : PubCoin is not validate"));
+                    }
+
+                    if(nHeight != -1){
+                        std::pair<std::map<CBigNum, uint64>::iterator,bool> ret;
+                        ret = orderMintTxPEDERSEN.insert(std::pair<CBigNum, uint64>(pubCoin, orderMintTxIdPEDERSEN));
+                        if (ret.second != false) {
+                            orderMintTxReversePEDERSEN.insert(std::pair<uint64, CBigNum>(orderMintTxIdPEDERSEN, pubCoin));
+                            printf("TxOut : %s\n", txout.scriptPubKey.ToString().c_str());
+                            printf("ID %d Mint Pubcoin = %s\n", orderMintTxIdPEDERSEN, pubCoin.GetHex().c_str());
+                            orderMintTxIdPEDERSEN++;
+                        }
+                    }
+
+                }else if(txout.nValue == libzerocoin::ZQ_WILLIAMSON * COIN){
+                    denomination = libzerocoin::ZQ_WILLIAMSON;
+                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_WILLIAMSON);
+                    if(!checkPubCoin.validate()){
+                        return state.DoS(100, error("CTransaction::CheckTransaction() : PubCoin is not validate"));
+                    }
+
+                    if(nHeight != -1){
+                        std::pair<std::map<CBigNum, uint64>::iterator,bool> ret;
+                        ret = orderMintTxWILLIAMSON.insert(std::pair<CBigNum, uint64>(pubCoin, orderMintTxIdWILLIAMSON));
+                        if (ret.second != false) {
+                            orderMintTxReverseWILLIAMSON.insert(std::pair<uint64, CBigNum>(orderMintTxIdWILLIAMSON, pubCoin));
+                            printf("TxOut : %s\n", txout.scriptPubKey.ToString().c_str());
+                            printf("ID %d Mint Pubcoin = %s\n", orderMintTxIdWILLIAMSON, pubCoin.GetHex().c_str());
+                            orderMintTxIdWILLIAMSON++;
+                        }
+                    }
+                }else{
+                    return state.DoS(100, error("CTransaction::CheckTransaction() : txout.nValue is not correct"));
                 }
 
-                // foreach check this pubCoinValue doesn't already belong to wallet
+
+                // Check the pubCoinValue didn't already store in the wallet
                 CZerocoinEntry pubCoinTx;
                 list<CZerocoinEntry> listPubCoin;
-                libzerocoin::Accumulator accumulatorFromDB(ZCParams);
+                libzerocoin::Accumulator accumulatorFromDB(ZCParams, denomination);
 
                 if(!isVerifyDB){
                     CWalletDB walletdb(pwalletMain->strWalletFile);
                     walletdb.ListPubCoin(listPubCoin);
-                    walletdb.ReadZerocoinAccumulator(accumulatorFromDB);
+                    walletdb.ReadZerocoinAccumulator(accumulatorFromDB, denomination);
                     bool isAlreadyStored = false;
                     BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
                         if(pubCoinItem.value == pubCoin && pubCoinItem.nHeight == nHeight){
@@ -703,12 +790,13 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
 
                     if(!isAlreadyStored){
                         // doesn't have pubcoin in wallet yet
-                        pubCoinTx.denomination = 1;
+                        pubCoinTx.denomination = denomination;
                         pubCoinTx.value = pubCoin;
-                        pubCoinTx.nHeight = nHeight;                        
+                        pubCoinTx.nHeight = nHeight;
+                        libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, denomination);
                         accumulatorFromDB += checkPubCoin;
                         walletdb.WriteZerocoinEntry(pubCoinTx);
-                        walletdb.WriteZerocoinAccumulator(accumulatorFromDB);
+                        walletdb.WriteZerocoinAccumulator(accumulatorFromDB, denomination);
                     }
                 }
             }
@@ -718,145 +806,683 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
         // (vin.size() == 1 && vin[0].prevout.IsNull() && (vin[0].scriptSig[0] == OP_ZEROCOINSPEND) );
         if (IsZerocoinSpend())
         {
-            // Check vOut
+            // Check vOut            
+
+            // Only one loop, we checked on the format before enter this case
             BOOST_FOREACH(const CTxOut txout, vout) {
-                if (txout.nValue > 1 * COIN){
-                    return state.DoS(100, error("CTransaction::CheckTransaction() : try to claim coins more than you have"));
+                if(txout.nValue == libzerocoin::ZQ_LOVELACE * COIN)
+                {
+                    // Check vIn
+                    BOOST_FOREACH(const CTxIn& txin, vin){
+
+                        if(txin.scriptSig.IsZerocoinSpend()){
+
+
+                            // Deserialize the CoinSpend intro a fresh object
+
+                            std::vector<char, zero_after_free_allocator<char> > dataTxIn;
+                            dataTxIn.insert(dataTxIn.end(), txin.scriptSig.begin() + 4, txin.scriptSig.end());
+
+                            CDataStream serializedCoinSpend(SER_NETWORK, PROTOCOL_VERSION);
+                            serializedCoinSpend.vch = dataTxIn;
+
+                            libzerocoin::CoinSpend newSpend(ZCParams, serializedCoinSpend);
+
+                            // Create a new metadata object to contain the hash of the received
+                            // ZEROCOIN_SPEND transaction. If we were a real client we'd actually
+                            // compute the hash of the received transaction here.
+                            libzerocoin::SpendMetaData newMetadata(0, 0);
+
+                            libzerocoin::Accumulator accumulator(ZCParams, libzerocoin::ZQ_LOVELACE);
+                            libzerocoin::Accumulator accumulatorFromDB(ZCParams, libzerocoin::ZQ_LOVELACE);
+                            libzerocoin::Accumulator accumulatorReverse(ZCParams, libzerocoin::ZQ_LOVELACE);
+
+                            bool passVerify = false;
+
+                            if(!isVerifyDB){
+                                CWalletDB walletdb(pwalletMain->strWalletFile);
+                                walletdb.ReadZerocoinAccumulator(accumulatorFromDB, libzerocoin::ZQ_LOVELACE);
+                                if (newSpend.Verify(accumulatorFromDB, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY FROM DB!\n");
+                                        passVerify = true;
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::reverse_iterator rit;
+                                for (rit=orderMintTxReverseLOVELACE.rbegin(); rit!=orderMintTxReverseLOVELACE.rend(); ++rit){
+                                    printf("ID %d Wallet Pubcoin = %s\n", rit->first, rit->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, rit->second, libzerocoin::ZQ_LOVELACE);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulator += pubCoinTemp;
+                                    if (newSpend.Verify(accumulator, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_LOVELACE);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_LOVELACE);
+                                        }
+                                        break;
+                                    }
+
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::iterator it;
+                                for (it=orderMintTxReverseLOVELACE.begin(); it!=orderMintTxReverseLOVELACE.end(); ++it){
+                                    printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, it->second, libzerocoin::ZQ_LOVELACE);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulatorReverse += pubCoinTemp;
+                                    if (newSpend.Verify(accumulatorReverse, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY - REVERSE!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_LOVELACE);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_LOVELACE);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(passVerify){
+
+                                // Pull the serial number out of the CoinSpend object. If we
+                                // were a real Zerocoin client we would now check that the serial number
+                                // has not been spent before (in another ZEROCOIN_SPEND) transaction.
+                                // The serial number is stored as a Bignum.
+                                if(!isVerifyDB){
+                                    CBigNum serialNumber = newSpend.getCoinSerialNumber();
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+
+                                    std::list<CZerocoinSpendEntry> listCoinSpendSerial;
+                                    walletdb.ListCoinSpendSerial(listCoinSpendSerial);
+                                    BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
+                                        if(item.coinSerial == serialNumber && item.hashTx != hashTx){
+                                            return state.DoS(100, error("CTransaction::CheckTransaction() : the CoinSpend serial has been used"));
+                                        }
+
+                                        if(item.coinSerial == serialNumber && item.hashTx == hashTx && item.pubCoin != 0){
+                                            CZerocoinEntry entry;
+                                            entry.IsUsed = true;
+                                            entry.value = item.pubCoin;
+                                            entry.randomness = 0;
+                                            entry.serialNumber = 0;
+                                            walletdb.WriteZerocoinEntry(entry);
+                                            // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+                                            pwalletMain->NotifyZerocoinChanged(pwalletMain, item.pubCoin.GetHex(), entry.IsUsed ? "Used" : "New", CT_UPDATED);
+                                        }
+                                    }
+
+                                    CZerocoinSpendEntry zccoinSpend;
+                                    zccoinSpend.coinSerial = serialNumber;
+                                    zccoinSpend.hashTx = hashTx;
+                                    zccoinSpend.pubCoin = 0;
+                                    walletdb.WriteCoinSpendSerialEntry(zccoinSpend);
+                                }
+
+                            }else{
+                                return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_LOVELACE DID NOT VERIFY!"));
+                            }
+                        }
+                    }
+                }else if(txout.nValue == libzerocoin::ZQ_GOLDWASSER * COIN){
+                    // Check vIn
+                    BOOST_FOREACH(const CTxIn& txin, vin){
+
+                        if(txin.scriptSig.IsZerocoinSpend()){
+
+
+                            // Deserialize the CoinSpend intro a fresh object
+
+                            std::vector<char, zero_after_free_allocator<char> > dataTxIn;
+                            dataTxIn.insert(dataTxIn.end(), txin.scriptSig.begin() + 4, txin.scriptSig.end());
+
+                            CDataStream serializedCoinSpend(SER_NETWORK, PROTOCOL_VERSION);
+                            serializedCoinSpend.vch = dataTxIn;
+
+                            libzerocoin::CoinSpend newSpend(ZCParams, serializedCoinSpend);
+
+                            // Create a new metadata object to contain the hash of the received
+                            // ZEROCOIN_SPEND transaction. If we were a real client we'd actually
+                            // compute the hash of the received transaction here.
+                            libzerocoin::SpendMetaData newMetadata(0, 0);
+
+                            libzerocoin::Accumulator accumulator(ZCParams, libzerocoin::ZQ_GOLDWASSER);
+                            libzerocoin::Accumulator accumulatorFromDB(ZCParams, libzerocoin::ZQ_GOLDWASSER);
+                            libzerocoin::Accumulator accumulatorReverse(ZCParams, libzerocoin::ZQ_GOLDWASSER);
+
+                            bool passVerify = false;
+
+                            if(!isVerifyDB){
+                                CWalletDB walletdb(pwalletMain->strWalletFile);
+                                walletdb.ReadZerocoinAccumulator(accumulatorFromDB, libzerocoin::ZQ_GOLDWASSER);
+                                if (newSpend.Verify(accumulatorFromDB, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY FROM DB!\n");
+                                        passVerify = true;
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::reverse_iterator rit;
+                                for (rit=orderMintTxReverseGOLDWASSER.rbegin(); rit!=orderMintTxReverseGOLDWASSER.rend(); ++rit){
+                                    printf("ID %d Wallet Pubcoin = %s\n", rit->first, rit->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, rit->second, libzerocoin::ZQ_GOLDWASSER);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulator += pubCoinTemp;
+                                    if (newSpend.Verify(accumulator, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_GOLDWASSER);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_GOLDWASSER);
+                                        }
+                                        break;
+                                    }
+
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::iterator it;
+                                for (it=orderMintTxReverseGOLDWASSER.begin(); it!=orderMintTxReverseGOLDWASSER.end(); ++it){
+                                    printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, it->second, libzerocoin::ZQ_GOLDWASSER);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulatorReverse += pubCoinTemp;
+                                    if (newSpend.Verify(accumulatorReverse, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY - REVERSE!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_GOLDWASSER);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_GOLDWASSER);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(passVerify){
+
+                                // Pull the serial number out of the CoinSpend object. If we
+                                // were a real Zerocoin client we would now check that the serial number
+                                // has not been spent before (in another ZEROCOIN_SPEND) transaction.
+                                // The serial number is stored as a Bignum.
+                                if(!isVerifyDB){
+                                    CBigNum serialNumber = newSpend.getCoinSerialNumber();
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+
+                                    std::list<CZerocoinSpendEntry> listCoinSpendSerial;
+                                    walletdb.ListCoinSpendSerial(listCoinSpendSerial);
+                                    BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
+                                        if(item.coinSerial == serialNumber && item.hashTx != hashTx){
+                                            return state.DoS(100, error("CTransaction::CheckTransaction() : the CoinSpend serial has been used"));
+                                        }
+
+                                        if(item.coinSerial == serialNumber && item.hashTx == hashTx && item.pubCoin != 0){
+                                            CZerocoinEntry entry;
+                                            entry.IsUsed = true;
+                                            entry.value = item.pubCoin;
+                                            entry.randomness = 0;
+                                            entry.serialNumber = 0;
+                                            walletdb.WriteZerocoinEntry(entry);
+                                            // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+                                            pwalletMain->NotifyZerocoinChanged(pwalletMain, item.pubCoin.GetHex(), entry.IsUsed ? "Used" : "New", CT_UPDATED);
+                                        }
+                                    }
+
+                                    CZerocoinSpendEntry zccoinSpend;
+                                    zccoinSpend.coinSerial = serialNumber;
+                                    zccoinSpend.hashTx = hashTx;
+                                    zccoinSpend.pubCoin = 0;
+                                    walletdb.WriteCoinSpendSerialEntry(zccoinSpend);
+                                }
+
+                            }else{
+                                return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_GOLDWASSER DID NOT VERIFY!"));
+                            }
+                        }
+                    }
+                }else if(txout.nValue == libzerocoin::ZQ_RACKOFF * COIN){
+                    // Check vIn
+                    BOOST_FOREACH(const CTxIn& txin, vin){
+
+                        if(txin.scriptSig.IsZerocoinSpend()){
+
+
+                            // Deserialize the CoinSpend intro a fresh object
+
+                            std::vector<char, zero_after_free_allocator<char> > dataTxIn;
+                            dataTxIn.insert(dataTxIn.end(), txin.scriptSig.begin() + 4, txin.scriptSig.end());
+
+                            CDataStream serializedCoinSpend(SER_NETWORK, PROTOCOL_VERSION);
+                            serializedCoinSpend.vch = dataTxIn;
+
+                            libzerocoin::CoinSpend newSpend(ZCParams, serializedCoinSpend);
+
+                            // Create a new metadata object to contain the hash of the received
+                            // ZEROCOIN_SPEND transaction. If we were a real client we'd actually
+                            // compute the hash of the received transaction here.
+                            libzerocoin::SpendMetaData newMetadata(0, 0);
+
+                            libzerocoin::Accumulator accumulator(ZCParams, libzerocoin::ZQ_RACKOFF);
+                            libzerocoin::Accumulator accumulatorFromDB(ZCParams, libzerocoin::ZQ_RACKOFF);
+                            libzerocoin::Accumulator accumulatorReverse(ZCParams, libzerocoin::ZQ_RACKOFF);
+
+                            bool passVerify = false;
+
+                            if(!isVerifyDB){
+                                CWalletDB walletdb(pwalletMain->strWalletFile);
+                                walletdb.ReadZerocoinAccumulator(accumulatorFromDB, libzerocoin::ZQ_RACKOFF);
+                                if (newSpend.Verify(accumulatorFromDB, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY FROM DB!\n");
+                                        passVerify = true;
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::reverse_iterator rit;
+                                for (rit=orderMintTxReverseRACKOFF.rbegin(); rit!=orderMintTxReverseRACKOFF.rend(); ++rit){
+                                    printf("ID %d Wallet Pubcoin = %s\n", rit->first, rit->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, rit->second, libzerocoin::ZQ_RACKOFF);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulator += pubCoinTemp;
+                                    if (newSpend.Verify(accumulator, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_RACKOFF);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_RACKOFF);
+                                        }
+                                        break;
+                                    }
+
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::iterator it;
+                                for (it=orderMintTxReverseRACKOFF.begin(); it!=orderMintTxReverseRACKOFF.end(); ++it){
+                                    printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, it->second, libzerocoin::ZQ_RACKOFF);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulatorReverse += pubCoinTemp;
+                                    if (newSpend.Verify(accumulatorReverse, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY - REVERSE!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_RACKOFF);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_RACKOFF);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(passVerify){
+
+                                // Pull the serial number out of the CoinSpend object. If we
+                                // were a real Zerocoin client we would now check that the serial number
+                                // has not been spent before (in another ZEROCOIN_SPEND) transaction.
+                                // The serial number is stored as a Bignum.
+                                if(!isVerifyDB){
+                                    CBigNum serialNumber = newSpend.getCoinSerialNumber();
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+
+                                    std::list<CZerocoinSpendEntry> listCoinSpendSerial;
+                                    walletdb.ListCoinSpendSerial(listCoinSpendSerial);
+                                    BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
+                                        if(item.coinSerial == serialNumber && item.hashTx != hashTx){
+                                            return state.DoS(100, error("CTransaction::CheckTransaction() : the CoinSpend serial has been used"));
+                                        }
+
+                                        if(item.coinSerial == serialNumber && item.hashTx == hashTx && item.pubCoin != 0){
+                                            CZerocoinEntry entry;
+                                            entry.IsUsed = true;
+                                            entry.value = item.pubCoin;
+                                            entry.randomness = 0;
+                                            entry.serialNumber = 0;
+                                            walletdb.WriteZerocoinEntry(entry);
+                                            // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+                                            pwalletMain->NotifyZerocoinChanged(pwalletMain, item.pubCoin.GetHex(), entry.IsUsed ? "Used" : "New", CT_UPDATED);
+                                        }
+                                    }
+
+                                    CZerocoinSpendEntry zccoinSpend;
+                                    zccoinSpend.coinSerial = serialNumber;
+                                    zccoinSpend.hashTx = hashTx;
+                                    zccoinSpend.pubCoin = 0;
+                                    walletdb.WriteCoinSpendSerialEntry(zccoinSpend);
+                                }
+
+                            }else{
+                                return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_RACKOFF DID NOT VERIFY!"));
+                            }
+                        }
+                    }
+                }else if(txout.nValue == libzerocoin::ZQ_PEDERSEN * COIN){
+                    // Check vIn
+                    BOOST_FOREACH(const CTxIn& txin, vin){
+
+                        if(txin.scriptSig.IsZerocoinSpend()){
+
+
+                            // Deserialize the CoinSpend intro a fresh object
+
+                            std::vector<char, zero_after_free_allocator<char> > dataTxIn;
+                            dataTxIn.insert(dataTxIn.end(), txin.scriptSig.begin() + 4, txin.scriptSig.end());
+
+                            CDataStream serializedCoinSpend(SER_NETWORK, PROTOCOL_VERSION);
+                            serializedCoinSpend.vch = dataTxIn;
+
+                            libzerocoin::CoinSpend newSpend(ZCParams, serializedCoinSpend);
+
+                            // Create a new metadata object to contain the hash of the received
+                            // ZEROCOIN_SPEND transaction. If we were a real client we'd actually
+                            // compute the hash of the received transaction here.
+                            libzerocoin::SpendMetaData newMetadata(0, 0);
+
+                            libzerocoin::Accumulator accumulator(ZCParams, libzerocoin::ZQ_PEDERSEN);
+                            libzerocoin::Accumulator accumulatorFromDB(ZCParams, libzerocoin::ZQ_PEDERSEN);
+                            libzerocoin::Accumulator accumulatorReverse(ZCParams, libzerocoin::ZQ_PEDERSEN);
+
+                            bool passVerify = false;
+
+                            if(!isVerifyDB){
+                                CWalletDB walletdb(pwalletMain->strWalletFile);
+                                walletdb.ReadZerocoinAccumulator(accumulatorFromDB, libzerocoin::ZQ_PEDERSEN);
+                                if (newSpend.Verify(accumulatorFromDB, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY FROM DB!\n");
+                                        passVerify = true;
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::reverse_iterator rit;
+                                for (rit=orderMintTxReversePEDERSEN.rbegin(); rit!=orderMintTxReversePEDERSEN.rend(); ++rit){
+                                    printf("ID %d Wallet Pubcoin = %s\n", rit->first, rit->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, rit->second, libzerocoin::ZQ_PEDERSEN);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulator += pubCoinTemp;
+                                    if (newSpend.Verify(accumulator, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_PEDERSEN);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_PEDERSEN);
+                                        }
+                                        break;
+                                    }
+
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::iterator it;
+                                for (it=orderMintTxReversePEDERSEN.begin(); it!=orderMintTxReversePEDERSEN.end(); ++it){
+                                    printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, it->second, libzerocoin::ZQ_PEDERSEN);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulatorReverse += pubCoinTemp;
+                                    if (newSpend.Verify(accumulatorReverse, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY - REVERSE!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_PEDERSEN);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_PEDERSEN);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(passVerify){
+
+                                // Pull the serial number out of the CoinSpend object. If we
+                                // were a real Zerocoin client we would now check that the serial number
+                                // has not been spent before (in another ZEROCOIN_SPEND) transaction.
+                                // The serial number is stored as a Bignum.
+                                if(!isVerifyDB){
+                                    CBigNum serialNumber = newSpend.getCoinSerialNumber();
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+
+                                    std::list<CZerocoinSpendEntry> listCoinSpendSerial;
+                                    walletdb.ListCoinSpendSerial(listCoinSpendSerial);
+                                    BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
+                                        if(item.coinSerial == serialNumber && item.hashTx != hashTx){
+                                            return state.DoS(100, error("CTransaction::CheckTransaction() : the CoinSpend serial has been used"));
+                                        }
+
+                                        if(item.coinSerial == serialNumber && item.hashTx == hashTx && item.pubCoin != 0){
+                                            CZerocoinEntry entry;
+                                            entry.IsUsed = true;
+                                            entry.value = item.pubCoin;
+                                            entry.randomness = 0;
+                                            entry.serialNumber = 0;
+                                            walletdb.WriteZerocoinEntry(entry);
+                                            // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+                                            pwalletMain->NotifyZerocoinChanged(pwalletMain, item.pubCoin.GetHex(), entry.IsUsed ? "Used" : "New", CT_UPDATED);
+                                        }
+                                    }
+
+                                    CZerocoinSpendEntry zccoinSpend;
+                                    zccoinSpend.coinSerial = serialNumber;
+                                    zccoinSpend.hashTx = hashTx;
+                                    zccoinSpend.pubCoin = 0;
+                                    walletdb.WriteCoinSpendSerialEntry(zccoinSpend);
+                                }
+
+                            }else{
+                                return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_PEDERSENDID NOT VERIFY!"));
+                            }
+                        }
+                    }
+                }else if(txout.nValue == libzerocoin::ZQ_WILLIAMSON * COIN){
+                    // Check vIn
+                    BOOST_FOREACH(const CTxIn& txin, vin){
+
+                        if(txin.scriptSig.IsZerocoinSpend()){
+
+
+                            // Deserialize the CoinSpend intro a fresh object
+
+                            std::vector<char, zero_after_free_allocator<char> > dataTxIn;
+                            dataTxIn.insert(dataTxIn.end(), txin.scriptSig.begin() + 4, txin.scriptSig.end());
+
+                            CDataStream serializedCoinSpend(SER_NETWORK, PROTOCOL_VERSION);
+                            serializedCoinSpend.vch = dataTxIn;
+
+                            libzerocoin::CoinSpend newSpend(ZCParams, serializedCoinSpend);
+
+                            // Create a new metadata object to contain the hash of the received
+                            // ZEROCOIN_SPEND transaction. If we were a real client we'd actually
+                            // compute the hash of the received transaction here.
+                            libzerocoin::SpendMetaData newMetadata(0, 0);
+
+                            libzerocoin::Accumulator accumulator(ZCParams, libzerocoin::ZQ_WILLIAMSON);
+                            libzerocoin::Accumulator accumulatorFromDB(ZCParams, libzerocoin::ZQ_WILLIAMSON);
+                            libzerocoin::Accumulator accumulatorReverse(ZCParams, libzerocoin::ZQ_WILLIAMSON);
+
+                            bool passVerify = false;
+
+                            if(!isVerifyDB){
+                                CWalletDB walletdb(pwalletMain->strWalletFile);
+                                walletdb.ReadZerocoinAccumulator(accumulatorFromDB, libzerocoin::ZQ_WILLIAMSON);
+                                if (newSpend.Verify(accumulatorFromDB, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY FROM DB!\n");
+                                        passVerify = true;
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::reverse_iterator rit;
+                                for (rit=orderMintTxReverseWILLIAMSON.rbegin(); rit!=orderMintTxReverseWILLIAMSON.rend(); ++rit){
+                                    printf("ID %d Wallet Pubcoin = %s\n", rit->first, rit->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, rit->second, libzerocoin::ZQ_WILLIAMSON);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulator += pubCoinTemp;
+                                    if (newSpend.Verify(accumulator, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_WILLIAMSON);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulator, libzerocoin::ZQ_WILLIAMSON);
+                                        }
+                                        break;
+                                    }
+
+                                }
+                            }
+
+                            if(!passVerify){
+                                std::map<uint64, CBigNum>::iterator it;
+                                for (it=orderMintTxReverseWILLIAMSON.begin(); it!=orderMintTxReverseWILLIAMSON.end(); ++it){
+                                    printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
+                                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, it->second, libzerocoin::ZQ_WILLIAMSON);
+                                    if(!pubCoinTemp.validate()){
+                                        return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
+                                    }
+                                    accumulatorReverse += pubCoinTemp;
+                                    if (newSpend.Verify(accumulatorReverse, newMetadata)) {
+                                        printf("COIN SPEND TX DID VERIFY - REVERSE!\n");
+                                        passVerify = true;
+                                        // Save the accumulator to be used in future
+                                        if(!isVerifyDB){
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_WILLIAMSON);
+                                        }else{
+                                            pwalletMain = new CWallet("wallet.dat");
+                                            CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
+                                            CWalletDB walletdb(pwalletMain->strWalletFile);
+                                            walletdb.WriteZerocoinAccumulator(accumulatorReverse, libzerocoin::ZQ_WILLIAMSON);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(passVerify){
+
+                                // Pull the serial number out of the CoinSpend object. If we
+                                // were a real Zerocoin client we would now check that the serial number
+                                // has not been spent before (in another ZEROCOIN_SPEND) transaction.
+                                // The serial number is stored as a Bignum.
+                                if(!isVerifyDB){
+                                    CBigNum serialNumber = newSpend.getCoinSerialNumber();
+                                    CWalletDB walletdb(pwalletMain->strWalletFile);
+
+                                    std::list<CZerocoinSpendEntry> listCoinSpendSerial;
+                                    walletdb.ListCoinSpendSerial(listCoinSpendSerial);
+                                    BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
+                                        if(item.coinSerial == serialNumber && item.hashTx != hashTx){
+                                            return state.DoS(100, error("CTransaction::CheckTransaction() : the CoinSpend serial has been used"));
+                                        }
+
+                                        if(item.coinSerial == serialNumber && item.hashTx == hashTx && item.pubCoin != 0){
+                                            CZerocoinEntry entry;
+                                            entry.IsUsed = true;
+                                            entry.value = item.pubCoin;
+                                            entry.randomness = 0;
+                                            entry.serialNumber = 0;
+                                            walletdb.WriteZerocoinEntry(entry);
+                                            // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
+                                            pwalletMain->NotifyZerocoinChanged(pwalletMain, item.pubCoin.GetHex(), entry.IsUsed ? "Used" : "New", CT_UPDATED);
+                                        }
+                                    }
+
+                                    CZerocoinSpendEntry zccoinSpend;
+                                    zccoinSpend.coinSerial = serialNumber;
+                                    zccoinSpend.hashTx = hashTx;
+                                    zccoinSpend.pubCoin = 0;
+                                    walletdb.WriteCoinSpendSerialEntry(zccoinSpend);
+                                }
+
+                            }else{
+                                return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_WILLIAMSON DID NOT VERIFY!"));
+                            }
+                        }
+                    }
+                }else{
+                    return state.DoS(100, error("CTransaction::CheckTransaction() : Your spending txout value does not match"));
                 }
+
             }
 
-            // Check vIn
-            BOOST_FOREACH(const CTxIn& txin, vin){
 
-                if(txin.scriptSig.IsZerocoinSpend()){
-
-
-                    // Deserialize the CoinSpend intro a fresh object
-
-                    std::vector<char, zero_after_free_allocator<char> > dataTxIn;
-                    dataTxIn.insert(dataTxIn.end(), txin.scriptSig.begin() + 4, txin.scriptSig.end());
-
-                    CDataStream serializedCoinSpend(SER_NETWORK, PROTOCOL_VERSION);
-                    serializedCoinSpend.vch = dataTxIn;
-
-                    libzerocoin::CoinSpend newSpend(ZCParams, serializedCoinSpend);
-
-                    // Create a new metadata object to contain the hash of the received
-                    // ZEROCOIN_SPEND transaction. If we were a real client we'd actually
-                    // compute the hash of the received transaction here.
-                    libzerocoin::SpendMetaData newMetadata(0, 0);
-
-                    libzerocoin::Accumulator accumulator(ZCParams);
-                    libzerocoin::Accumulator accumulatorFromDB(ZCParams);
-                    libzerocoin::Accumulator accumulatorReverse(ZCParams);
-
-                    bool passVerify = false;
-
-                    if(!isVerifyDB){
-                        CWalletDB walletdb(pwalletMain->strWalletFile);
-                        walletdb.ReadZerocoinAccumulator(accumulatorFromDB);
-                        if (newSpend.Verify(accumulatorFromDB, newMetadata)) {
-                                printf("COIN SPEND TX DID VERIFY FROM DB!\n");
-                                passVerify = true;
-                        }
-                    }
-
-                    if(!passVerify){
-                        std::map<uint64, CBigNum>::reverse_iterator rit;
-                        for (rit=orderMintTxReverse.rbegin(); rit!=orderMintTxReverse.rend(); ++rit){
-                            printf("ID %d Wallet Pubcoin = %s\n", rit->first, rit->second.GetHex().c_str());
-                            libzerocoin::PublicCoin pubCoinTemp(ZCParams, rit->second, (libzerocoin::CoinDenomination)(1));
-                            if(!pubCoinTemp.validate()){
-                                return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
-                            }
-                            accumulator += pubCoinTemp;
-                            if (newSpend.Verify(accumulator, newMetadata)) {
-                                printf("COIN SPEND TX DID VERIFY!\n");
-                                passVerify = true;
-                                // Save the accumulator to be used in future
-                                if(!isVerifyDB){
-                                    CWalletDB walletdb(pwalletMain->strWalletFile);
-                                    walletdb.WriteZerocoinAccumulator(accumulator);
-                                }else{
-                                    pwalletMain = new CWallet("wallet.dat");
-                                    CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
-                                    CWalletDB walletdb(pwalletMain->strWalletFile);
-                                    walletdb.WriteZerocoinAccumulator(accumulator);
-                                }
-                                break;
-                            }
-
-                        }
-                    }
-
-                    if(!passVerify){
-                        std::map<uint64, CBigNum>::iterator it;
-                        for (it=orderMintTxReverse.begin(); it!=orderMintTxReverse.end(); ++it){
-                            printf("ID %d Wallet Pubcoin = %s\n", it->first, it->second.GetHex().c_str());
-                            libzerocoin::PublicCoin pubCoinTemp(ZCParams, it->second, (libzerocoin::CoinDenomination)(1));
-                            if(!pubCoinTemp.validate()){
-                                return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
-                            }
-                            accumulatorReverse += pubCoinTemp;
-                            if (newSpend.Verify(accumulatorReverse, newMetadata)) {
-                                printf("COIN SPEND TX DID VERIFY - REVERSE!\n");
-                                passVerify = true;
-                                // Save the accumulator to be used in future
-                                if(!isVerifyDB){
-                                    CWalletDB walletdb(pwalletMain->strWalletFile);
-                                    walletdb.WriteZerocoinAccumulator(accumulatorReverse);
-                                }else{
-                                    pwalletMain = new CWallet("wallet.dat");
-                                    CWalletDB (pwalletMain->strWalletFile,"cr+").LoadWallet(pwalletMain);
-                                    CWalletDB walletdb(pwalletMain->strWalletFile);
-                                    walletdb.WriteZerocoinAccumulator(accumulatorReverse);
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    if(passVerify){
-
-                        // Pull the serial number out of the CoinSpend object. If we
-                        // were a real Zerocoin client we would now check that the serial number
-                        // has not been spent before (in another ZEROCOIN_SPEND) transaction.
-                        // The serial number is stored as a Bignum.
-                        if(!isVerifyDB){
-                            CBigNum serialNumber = newSpend.getCoinSerialNumber();
-                            CWalletDB walletdb(pwalletMain->strWalletFile);
-
-                            std::list<CZerocoinSpendEntry> listCoinSpendSerial;
-                            walletdb.ListCoinSpendSerial(listCoinSpendSerial);
-                            BOOST_FOREACH(const CZerocoinSpendEntry& item, listCoinSpendSerial){
-                                if(item.coinSerial == serialNumber && item.hashTx != hashTx){
-                                    return state.DoS(100, error("CTransaction::CheckTransaction() : the CoinSpend serial has been used"));
-                                }
-
-                                if(item.coinSerial == serialNumber && item.hashTx == hashTx && item.pubCoin != 0){
-                                    CZerocoinEntry entry;
-                                    entry.IsUsed = true;
-                                    entry.value = item.pubCoin;
-                                    entry.randomness = 0;
-                                    entry.serialNumber = 0;
-                                    walletdb.WriteZerocoinEntry(entry);
-                                    // TODO: NotifyZerocoinChanged(this, zcSelectedValue, zcSelectedIsUsed ? "Used" : "New", CT_UPDATED);
-                                    pwalletMain->NotifyZerocoinChanged(pwalletMain, item.pubCoin.GetHex(), entry.IsUsed ? "Used" : "New", CT_UPDATED);
-                                }
-                            }
-
-                            CZerocoinSpendEntry zccoinSpend;
-                            zccoinSpend.coinSerial = serialNumber;
-                            zccoinSpend.hashTx = hashTx;
-                            zccoinSpend.pubCoin = 0;
-                            walletdb.WriteCoinSpendSerialEntry(zccoinSpend);
-                        }
-
-                    }else{
-                        return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX DID NOT VERIFY!"));
-                    }
-                }
-            }
 
         }
     }
@@ -3967,7 +4593,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         // Send the rest of the chain
         if (pindex)
             pindex = pindex->pnext;
-        int nLimit = 500;
+        int nLimit = 2500;
         printf("getblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().c_str(), nLimit);
         for (; pindex; pindex = pindex->pnext)
         {

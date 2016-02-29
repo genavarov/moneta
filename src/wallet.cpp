@@ -1382,7 +1382,11 @@ bool CWallet::CreateZerocoinMintModel(){
     // new zerocoin. It stores all the private values inside the
     // PrivateCoin object. This includes the coin secrets, which must be
     // stored in a secure location (wallet) at the client.
-    libzerocoin::PrivateCoin newCoin(ZCParams);
+
+    // fix denomination for UI
+    libzerocoin::CoinDenomination denomination = libzerocoin::ZQ_LOVELACE;
+
+    libzerocoin::PrivateCoin newCoin(ZCParams, denomination);
 
 
     // Get a copy of the 'public' portion of the coin. You should
@@ -1432,6 +1436,9 @@ bool CWallet::CreateZerocoinSpendModel(){
     // Amount fixed value
     int64 nAmount = roundint64(1 * COIN);
 
+    // fix denomination for UI
+    libzerocoin::CoinDenomination denomination = libzerocoin::ZQ_LOVELACE;
+
     // Wallet comments
     CWalletTx wtx;
 
@@ -1440,7 +1447,7 @@ bool CWallet::CreateZerocoinSpendModel(){
     CBigNum zcSelectedValue;
     bool zcSelectedIsUsed;
 
-    string strError = SpendZerocoin(nAmount, wtx, coinSerial, txHash, zcSelectedValue, zcSelectedIsUsed);
+    string strError = SpendZerocoin(nAmount, denomination, wtx, coinSerial, txHash, zcSelectedValue, zcSelectedIsUsed);
 
     if (strError != "")
         return false;
@@ -1635,7 +1642,7 @@ bool CWallet::CreateZerocoinMintTransaction(const vector<pair<CScript, int64> >&
 }
 
 
-bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
+bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDenomination denomination,
                                 CWalletTx& wtxNew, CReserveKey& reservekey, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed,  std::string& strFailReason)
 {
     if (nValue < 0)
@@ -1677,7 +1684,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
             // Set up the Zerocoin Params object
             static libzerocoin::Params *ZCParams = new libzerocoin::Params(bnTrustedModulus);
 
-            libzerocoin::Accumulator accumulator(ZCParams);
+            libzerocoin::Accumulator accumulator(ZCParams, denomination);
 
             // TODO: Create Zercoin spending transaction part
             // 1. Selection a private coin that doesn't use in wallet
@@ -1695,6 +1702,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
             bool selectedPubcoin = false;
             BOOST_FOREACH(const CZerocoinEntry& zerocoinItem, listPubCoin){
                 if(zerocoinItem.IsUsed == false
+                        && zerocoinItem.denomination == denomination
                         && zerocoinItem.randomness != 0
                         && zerocoinItem.serialNumber != 0
                         && zerocoinItem.nHeight != -1
@@ -1711,7 +1719,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
             }
 
             // 2. Get pubcoin from the private coin
-            libzerocoin::PublicCoin pubCoinSelected(ZCParams, zerocoinSelected.value, (libzerocoin::CoinDenomination)(1));
+            libzerocoin::PublicCoin pubCoinSelected(ZCParams, zerocoinSelected.value, denomination);
 
             // Now make sure the coin is valid.
             if (!pubCoinSelected.validate()) {
@@ -1726,8 +1734,11 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
             // 3. Compute Accomulator by yourself by getting all pubcoins value from wallet, but it must not include the public coin of the selected private coin
             uint64 countUseablePubcoin = 0;
             BOOST_FOREACH(const CZerocoinEntry& zerocoinItem, listPubCoin){
-                if(zerocoinItem.value  != zerocoinSelected.value && zerocoinItem.nHeight + 6 < nBestHeight){
-                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, zerocoinItem.value, (libzerocoin::CoinDenomination)(1));
+                if(zerocoinItem.value  != zerocoinSelected.value
+                        && zerocoinItem.nHeight + 6 < nBestHeight
+                        && zerocoinItem.denomination == denomination
+                        && zerocoinItem.nHeight != -1){
+                    libzerocoin::PublicCoin pubCoinTemp(ZCParams, zerocoinItem.value, denomination);
                     if(pubCoinTemp.validate()){
                         countUseablePubcoin++;
                         accumulator += pubCoinTemp;
@@ -1767,7 +1778,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
             // Construct the CoinSpend object. This acts like a signature on the
             // transaction.
             printf("libzerocoin::CoinSpend spend(ZCParams, privateCoin, accumulator, witness, metaData);");
-            libzerocoin::PrivateCoin privateCoin(ZCParams, (libzerocoin::CoinDenomination)(1));
+            libzerocoin::PrivateCoin privateCoin(ZCParams, denomination);
             privateCoin.setPublicCoin(pubCoinSelected);
             privateCoin.setRandomness(zerocoinSelected.randomness);
             privateCoin.setSerialNumber(zerocoinSelected.serialNumber);
@@ -1873,7 +1884,6 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue,
 
         }
     }
-
 
     return true;
 }
@@ -2073,7 +2083,7 @@ string CWallet::MintZerocoin(CScript pubCoin, int64 nValue, CWalletTx& wtxNew, b
     return "";
 }
 
-string CWallet::SpendZerocoin(int64 nValue, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed)
+string CWallet::SpendZerocoin(int64 nValue, libzerocoin::CoinDenomination denomination, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed)
 {
     // Check amount
     if (nValue <= 0)
@@ -2089,7 +2099,7 @@ string CWallet::SpendZerocoin(int64 nValue, CWalletTx& wtxNew, CBigNum& coinSeri
     }
 
     string strError;
-    if(!CreateZerocoinSpendTransaction(nValue, wtxNew, reservekey, coinSerial, txHash, zcSelectedValue, zcSelectedIsUsed, strError)){
+    if(!CreateZerocoinSpendTransaction(nValue, denomination, wtxNew, reservekey, coinSerial, txHash, zcSelectedValue, zcSelectedIsUsed, strError)){
         printf("SpendZerocoin() : %s\n", strError.c_str());
         return strError;
     }
