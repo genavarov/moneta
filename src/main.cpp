@@ -1500,7 +1500,7 @@ int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
     unsigned int nNewBlockSize = nBlockSize + nBytes;
     int64 nMinFee = (1 + (int64)nBytes / 1000) * nBaseFee;
 
-    // Moneta has no free transactions
+
     if (fAllowFree)
     {
         // There is a free transaction area in blocks created by most miners,
@@ -1509,8 +1509,8 @@ int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
         //   multiple transactions instead of one big transaction to avoid fees.
         // * If we are creating a transaction we allow transactions up to 5,000 bytes
         //   to be considered safe and assume they can likely make it into this section.
-//        if (nBytes < (mode == GMF_SEND ? 5000 : (DEFAULT_BLOCK_PRIORITY_SIZE - 1000)))
-//            nMinFee = 0;
+        if (nBytes < (mode == GMF_SEND ? 5000 : (DEFAULT_BLOCK_PRIORITY_SIZE - 1000)))
+            nMinFee = 0;
     }
 
     // Moneta
