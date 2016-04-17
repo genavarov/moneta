@@ -505,7 +505,7 @@ bool AddressTableModel::zerocoinMint()
     return wallet->CreateZerocoinMintModel();
 }
 
-bool AddressTableModel::zerocoinSpend()
+bool AddressTableModel::zerocoinSpend(string &stringError)
 {
     WalletModel::UnlockContext ctx(walletModel->requestUnlock());
     if(!ctx.isValid())
@@ -513,6 +513,7 @@ bool AddressTableModel::zerocoinSpend()
         // Unlock wallet failed or was cancelled
         return false;
     }
-    return wallet->CreateZerocoinSpendModel();
+
+    return wallet->CreateZerocoinSpendModel(stringError);
 }
 

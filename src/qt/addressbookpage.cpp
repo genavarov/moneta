@@ -236,9 +236,10 @@ void AddressBookPage::on_zerocoinMintButton_clicked()
 
 void AddressBookPage::on_zerocoinSpendButton_clicked(){
 
-    if(!model->zerocoinSpend()){
+    std::string stringError;
+    if(!model->zerocoinSpend(stringError)){
         QMessageBox::critical(this, tr("Error"),
-            tr("You cannot spend zerocoin !!"),
+            tr("You cannot spend zerocoin because %s", stringError.c_str()),
             QMessageBox::Ok, QMessageBox::Ok);
     }
 }
