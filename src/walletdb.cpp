@@ -114,6 +114,7 @@ void CWalletDB::ListPubCoin(std::list<CZerocoinEntry>& listPubCoin)
         CZerocoinEntry zerocoinItem;
         ssValue >> zerocoinItem;
 
+
         listPubCoin.push_back(zerocoinItem);
     }
 

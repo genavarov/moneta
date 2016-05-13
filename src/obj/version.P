@@ -1,4 +1,4 @@
 obj/version.o: version.cpp version.h clientversion.h \
-  /Users/poramin/Desktop/moneta/src/obj/build.h
+ /home/bushido/moneta/src/obj/build.h
 version.cpp version.h clientversion.h :
-  /Users/poramin/Desktop/moneta/src/obj/build.h :
+ /home/bushido/moneta/src/obj/build.h :

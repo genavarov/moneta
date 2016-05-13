@@ -107,6 +107,9 @@ DEBUGFLAGS=-g
 xCXXFLAGS=-O2 -pthread -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter \
     $(DEBUGFLAGS) $(DEFS) $(HARDENING) $(CXXFLAGS)
 
+xCFLAGS=-O2 -pthread -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter \
+    $(DEBUGFLAGS) $(DEFS) $(HARDENING) $(CFLAGS)
+
 # LDFLAGS can be specified on the make command line, so we use xLDFLAGS that only
 # adds some defaults in front. Unfortunately, LDFLAGS=... $(LDFLAGS) does not work.
 xLDFLAGS=$(LDHARDENING) $(LDFLAGS)
@@ -153,7 +156,11 @@ OBJS= \
     obj/libzerocoin/ParamGeneration.o \
     obj/libzerocoin/Params.o \
     obj/libzerocoin/SerialNumberSignatureOfKnowledge.o \
-    obj/libzerocoin/SpendMetaData.o
+    obj/libzerocoin/SpendMetaData.o \
+    obj/Lyra2.o \
+    obj/Sponge.o
+
+
 
 
 ifdef USE_SSE2
@@ -193,6 +200,8 @@ obj/libzerocoin/%.o: libzerocoin/%.cpp
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
 
+obj/%.o: %.c
+	$(CC) -c -O3 -o $@ $<
 
 obj/%-sse2.o: %-sse2.cpp
 	$(CXX) -c $(xCXXFLAGS) -msse2 -MMD -MF $(@:%.o=%.d) -o $@ $<

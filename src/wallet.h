@@ -199,7 +199,7 @@ public:
     std::string MintZerocoin(CScript pubCoin, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
     std::string SpendZerocoin(int64 nValue, libzerocoin::CoinDenomination denomination, CWalletTx& wtxNew, CBigNum& coinSerial, uint256& txHash, CBigNum& zcSelectedValue, bool& zcSelectedIsUsed);
     bool CreateZerocoinMintModel();
-    bool CreateZerocoinSpendModel();
+    bool CreateZerocoinSpendModel(string &stringError);
 
 
     bool NewKeyPool();
@@ -899,6 +899,7 @@ public:
 
     bool IsUsed;
     int nHeight;
+    int id;
 
     CZerocoinEntry()
     {
@@ -913,6 +914,7 @@ public:
         value = 0;
         denomination = -1;
         nHeight = -1;
+        id = -1;
     }
 
 
@@ -924,6 +926,7 @@ public:
         READWRITE(value);
         READWRITE(denomination);
         READWRITE(nHeight);
+        READWRITE(id);
     )
 };
 
@@ -934,6 +937,8 @@ public:
     Bignum coinSerial;
     uint256 hashTx;
     Bignum pubCoin;
+    int denomination;
+    int id;
 
     CZerocoinSpendEntry()
     {
@@ -945,6 +950,8 @@ public:
         coinSerial = 0;
         hashTx = 0;
         pubCoin = 0;
+        denomination = 0;
+        id = 0;
     }
 
 
@@ -953,6 +960,8 @@ public:
         READWRITE(coinSerial);
         READWRITE(hashTx);
         READWRITE(pubCoin);
+        READWRITE(denomination);
+        READWRITE(id);
     )
 };
 

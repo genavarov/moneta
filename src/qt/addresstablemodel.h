@@ -78,7 +78,7 @@ public:
     EditStatus getEditStatus() const { return editStatus; }
 
     bool zerocoinMint();
-    bool zerocoinSpend();
+    bool zerocoinSpend(std::string &stringError);
 
 
 private:
