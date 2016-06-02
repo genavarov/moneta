@@ -1363,18 +1363,12 @@ public:
         return nVersion / BLOCK_VERSION_CHAIN_START;
     }
 
-    uint256 GetPoWHash(int height) const
+    uint256 GetPoWHash() const
     {
         uint256 thash;
 
-        if(height > 168 && height != INT_MAX)
-        {
-            lyra2_hash(BEGIN(nVersion), BEGIN(thash));
-        }
-        else
-        {
-            scrypt_N_1_1_256(BEGIN(nVersion), BEGIN(thash), GetNfactor(nTime));
-        }
+        scrypt_N_1_1_256(BEGIN(nVersion), BEGIN(thash), GetNfactor(nTime));
+
 
         return thash;
     }
@@ -1556,7 +1550,7 @@ public:
         }
 
         // Check the header
-        if (!::CheckProofOfWork(GetPoWHash(LastHeight+1), nBits))
+        if (!::CheckProofOfWork(GetPoWHash(), nBits))
             return error("CBlock::ReadFromDisk() : errors in block header");
 
         return true;
@@ -1569,7 +1563,7 @@ public:
         printf("CBlock(hash=%s, input=%s, PoW=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
             GetHash().ToString().c_str(),
             HexStr(BEGIN(nVersion),BEGIN(nVersion)+80,false).c_str(),
-            GetPoWHash(LastHeight+1).ToString().c_str(),
+            GetPoWHash().ToString().c_str(),
             nVersion,
             hashPrevBlock.ToString().c_str(),
             hashMerkleRoot.ToString().c_str(),

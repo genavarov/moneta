@@ -40,7 +40,7 @@ public:
 
     uint256 GetParentBlockHash()
     {
-        return parentBlockHeader.GetPoWHash(parentBlockHeader.LastHeight+1);
+        return parentBlockHeader.GetPoWHash();
     }
 };
 

@@ -3038,8 +3038,7 @@ bool CBlockHeader::CheckProofOfWork(int nHeight) const
         else
         {
             // Check proof of work matches claimed amount
-            printf("%d ==========================\n", nHeight);
-            if (!::CheckProofOfWork(GetPoWHash(nHeight), nBits))
+            if (!::CheckProofOfWork(GetPoWHash(), nBits))
                 return error("CheckProofOfWork() : proof of work failed - 1");
         }
     }
@@ -3051,7 +3050,7 @@ bool CBlockHeader::CheckProofOfWork(int nHeight) const
         }
 
         // Check if proof of work marches claimed amount
-        if (!::CheckProofOfWork(GetPoWHash(nHeight), nBits))
+        if (!::CheckProofOfWork(GetPoWHash(), nBits))
             return error("CheckProofOfWork() : proof of work failed - 2");
     }
     return true;
@@ -5720,7 +5719,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
         nHeight = pindexPrev->nHeight+1;
     }
 
-    uint256 hash = pblock->GetPoWHash(nHeight);
+    uint256 hash = pblock->GetPoWHash();
     uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
 
     CAuxPow *auxpow = pblock->auxpow.get();
@@ -5877,14 +5876,8 @@ void static ScryptMiner(CWallet *pwallet)
             char scratchpad[scrypt_scratpad_size_current_block];
             loop
             {
-                if(pindexPrev->nHeight >= 0 && pindexPrev->nHeight+1 >= 168)
-                {
-                    lyra2_hash(BEGIN(pblock->nVersion), BEGIN(thash));
-                }
-                else
-                {
-                    scrypt_N_1_1_256_sp_generic(BEGIN(pblock->nVersion), BEGIN(thash), scratchpad, GetNfactor(pblock->nTime));
-                }
+                scrypt_N_1_1_256_sp_generic(BEGIN(pblock->nVersion), BEGIN(thash), scratchpad, GetNfactor(pblock->nTime));
+
 
 
                 if (thash <= hashTarget)
