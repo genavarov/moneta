@@ -585,22 +585,6 @@ bool setParams = bnTrustedModulus.SetHexBool(ZEROCOIN_MODULUS);
 // Set up the Zerocoin Params object
 static libzerocoin::Params *ZCParams = new libzerocoin::Params(bnTrustedModulus);
 
-std::map<CBigNum,uint64> orderMintTxLOVELACE;
-std::map<uint64, CBigNum> orderMintTxReverseLOVELACE;
-uint64 orderMintTxIdLOVELACE = 1;
-std::map<CBigNum,uint64> orderMintTxGOLDWASSER;
-std::map<uint64, CBigNum> orderMintTxReverseGOLDWASSER;
-uint64 orderMintTxIdGOLDWASSER = 1;
-std::map<CBigNum,uint64> orderMintTxRACKOFF;
-std::map<uint64, CBigNum> orderMintTxReverseRACKOFF;
-uint64 orderMintTxIdRACKOFF = 1;
-std::map<CBigNum,uint64> orderMintTxPEDERSEN;
-std::map<uint64, CBigNum> orderMintTxReversePEDERSEN;
-uint64 orderMintTxIdPEDERSEN = 1;
-std::map<CBigNum,uint64> orderMintTxWILLIAMSON;
-std::map<uint64, CBigNum> orderMintTxReverseWILLIAMSON;
-uint64 orderMintTxIdWILLIAMSON = 1;
-
 bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, bool isVerifyDB, int nHeight) const
 {
     // Basic checks that don't depend on any context
@@ -870,6 +854,7 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
 
 
                                 // UPDATING PROCESS
+                                int countPubcoin = 0;
                                 BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
 
                                     if(pubCoinItem.denomination == libzerocoin::ZQ_LOVELACE && pubCoinItem.id == pubcoinId){
@@ -877,11 +862,14 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                         if(!pubCoinTemp.validate()){
                                             return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
                                         }
+                                        countPubcoin++;
                                         accumulator += pubCoinTemp;
-                                        if (newSpend.Verify(accumulator, newMetadata)) {
-                                            printf("COIN SPEND TX DID VERIFY!\n");
-                                            passVerify = true;
-                                            break;
+                                        if(countPubcoin >= 2){ // Min is 2 pubcoins
+                                            if (newSpend.Verify(accumulator, newMetadata)) {
+                                                printf("COIN SPEND TX DID VERIFY!\n");
+                                                passVerify = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -994,8 +982,8 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                 int pubcoinId = txin.nSequence;
 
 
-
                                 // UPDATING PROCESS
+                                int countPubcoin = 0;
                                 BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
 
                                     if(pubCoinItem.denomination == libzerocoin::ZQ_GOLDWASSER && pubCoinItem.id == pubcoinId){
@@ -1003,14 +991,18 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                         if(!pubCoinTemp.validate()){
                                             return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
                                         }
+                                        countPubcoin++;
                                         accumulator += pubCoinTemp;
-                                        if (newSpend.Verify(accumulator, newMetadata)) {
-                                            printf("COIN SPEND TX DID VERIFY!\n");
-                                            passVerify = true;
-                                            break;
+                                        if(countPubcoin >= 2){ // Min is 2 pubcoins
+                                            if (newSpend.Verify(accumulator, newMetadata)) {
+                                                printf("COIN SPEND TX DID VERIFY!\n");
+                                                passVerify = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
+
 
                                 if(passVerify){
 
@@ -1121,7 +1113,10 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
 
 
 
+
+
                                 // UPDATING PROCESS
+                                int countPubcoin = 0;
                                 BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
 
                                     if(pubCoinItem.denomination == libzerocoin::ZQ_RACKOFF && pubCoinItem.id == pubcoinId){
@@ -1129,11 +1124,14 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                         if(!pubCoinTemp.validate()){
                                             return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
                                         }
+                                        countPubcoin++;
                                         accumulator += pubCoinTemp;
-                                        if (newSpend.Verify(accumulator, newMetadata)) {
-                                            printf("COIN SPEND TX DID VERIFY!\n");
-                                            passVerify = true;
-                                            break;
+                                        if(countPubcoin >= 2){ // Min is 2 pubcoins
+                                            if (newSpend.Verify(accumulator, newMetadata)) {
+                                                printf("COIN SPEND TX DID VERIFY!\n");
+                                                passVerify = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -1247,7 +1245,9 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
 
 
 
+
                                 // UPDATING PROCESS
+                                int countPubcoin = 0;
                                 BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
 
                                     if(pubCoinItem.denomination == libzerocoin::ZQ_PEDERSEN && pubCoinItem.id == pubcoinId){
@@ -1255,11 +1255,14 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                         if(!pubCoinTemp.validate()){
                                             return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
                                         }
+                                        countPubcoin++;
                                         accumulator += pubCoinTemp;
-                                        if (newSpend.Verify(accumulator, newMetadata)) {
-                                            printf("COIN SPEND TX DID VERIFY!\n");
-                                            passVerify = true;
-                                            break;
+                                        if(countPubcoin >= 2){ // Min is 2 pubcoins
+                                            if (newSpend.Verify(accumulator, newMetadata)) {
+                                                printf("COIN SPEND TX DID VERIFY!\n");
+                                                passVerify = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -1374,6 +1377,7 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
 
 
                                 // UPDATING PROCESS
+                                int countPubcoin = 0;
                                 BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
 
                                     if(pubCoinItem.denomination == libzerocoin::ZQ_WILLIAMSON && pubCoinItem.id == pubcoinId){
@@ -1381,11 +1385,14 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                         if(!pubCoinTemp.validate()){
                                             return state.DoS(100, error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
                                         }
+                                        countPubcoin++;
                                         accumulator += pubCoinTemp;
-                                        if (newSpend.Verify(accumulator, newMetadata)) {
-                                            printf("COIN SPEND TX DID VERIFY!\n");
-                                            passVerify = true;
-                                            break;
+                                        if(countPubcoin >= 2){ // Min is 2 pubcoins
+                                            if (newSpend.Verify(accumulator, newMetadata)) {
+                                                printf("COIN SPEND TX DID VERIFY!\n");
+                                                passVerify = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }

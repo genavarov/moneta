@@ -25,8 +25,7 @@ bool bSpendZeroConfChange = true;
 // mapWallet
 //
 
-struct CompareValueOnly
-{
+struct CompareValueOnly{
     bool operator()(const pair<int64, pair<const CWalletTx*, unsigned int> >& t1,
                     const pair<int64, pair<const CWalletTx*, unsigned int> >& t2) const
     {
@@ -1709,7 +1708,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
             }
 
             if(!selectedPubcoin){
-                strFailReason = _("ZEROCOIN_MINT is not avaliable for selecting");
+                strFailReason = _("it has to have at least two mint coins with at least 7 confirmation in order to spend a coin");
                 return false;
             }
 
@@ -1721,7 +1720,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
                 // If this returns false, don't accept the coin for any purpose!
                 // Any ZEROCOIN_MINT with an invalid coin should NOT be
                 // accepted as a valid transaction in the block chain.
-                strFailReason = _("Selected ZEROCOIN_MINT with an invalid coin");
+                strFailReason = _("the selected mint coin is an invalid coin");
                 return false;
             }
 
@@ -1738,14 +1737,16 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
                     libzerocoin::PublicCoin pubCoinTemp(ZCParams, zerocoinItem.value, denomination);
                     if(pubCoinTemp.validate()){
                         countUseablePubcoin++;
-                        printf("GET PUBCOIN ID: %d\n", zerocoinItem.id);
+                        printf("COIN NO: %d PUBCOIN ID: %d\n", countUseablePubcoin, zerocoinItem.id);
                         accumulator += pubCoinTemp;
                     }
                 }
             }
 
-            if(countUseablePubcoin == 1){ // You have to have at least two mint zerocoins.
-                strFailReason = _("ZEROCOIN_MINT is not avaliable for calculating accumulator");
+            printf("USEABLE PUBCOINS: %d\n", countUseablePubcoin);
+
+            if(countUseablePubcoin < 1){ // You have to have at least two mint zerocoins.
+                strFailReason = _("at least two mint coins are using calculating accumulator");
                 return false;
             }
 
@@ -1783,7 +1784,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
             // This is a sanity check. The CoinSpend object should always verify,
             // but why not check before we put it onto the wire?
             if (!spend.Verify(accumulator, metaData)) {
-                strFailReason = _("Our new CoinSpend transaction did not verify");
+                strFailReason = _("the new spend coin transaction did not verify");
                 return false;
             }
 
@@ -1821,7 +1822,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
             // Verify that the spend is valid with respect to the Accumulator
             // and the Metadata
             if (!newSpend.Verify(accumulator, newMetadata)) {
-                strFailReason = _("Our new CoinSpend transaction did not verify");
+                strFailReason = _("the new spend coin transaction did not verify");
                 return false;
             }
 
@@ -1845,7 +1846,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
             // Deserialize the CoinSpend intro a fresh object
             libzerocoin::CoinSpend newSpendChecking(ZCParams, serializedCoinSpendChecking);
             if (!newSpendChecking.Verify(accumulator, newMetadata)) {
-                strFailReason = _("Transaction did not verify");
+                strFailReason = _("the transaction did not verify");
                 return false;
             }
 
@@ -1854,7 +1855,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
             unsigned int nBytes = ::GetSerializeSize(*(CTransaction*)&wtxNew, SER_NETWORK, PROTOCOL_VERSION);
             if (nBytes >= MAX_STANDARD_TX_SIZE)
             {
-                strFailReason = _("Transaction too large");
+                strFailReason = _("the transaction too large");
                 return false;
             }
 
@@ -1878,7 +1879,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
                     pubCoinTx.value = zerocoinSelected.value;
                     CWalletDB(strWalletFile).WriteZerocoinEntry(pubCoinTx);
                     pwalletMain->NotifyZerocoinChanged(pwalletMain, zerocoinSelected.value.GetHex(), "Used", CT_UPDATED);
-                    strFailReason = _("Zerocoin spend has been used");
+                    strFailReason = _("the coin spend has been used");
                     return false;
                 }
             }
@@ -1895,7 +1896,7 @@ bool CWallet::CreateZerocoinSpendTransaction(int64 nValue, libzerocoin::CoinDeno
             entry.id = zerocoinSelected.id;
             entry.denomination = zerocoinSelected.denomination;
             if(!CWalletDB(strWalletFile).WriteCoinSpendSerialEntry(entry)){
-                strFailReason = _("Cannot write coin serial number into wallet");
+                strFailReason = _("it cannot write coin serial number into wallet");
             }
 
         }
