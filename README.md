@@ -1,9 +1,10 @@
-moneta integration/staging tree
+Moneta integration/staging tree
 ================================
 
-https://moneta.cash/
+http://moneta.cash/
 
 Copyright (c) 2009-2014 Bitcoin Developers
+
 Copyright (c) 2015 Moneta Developers
 
 What is Moneta?
@@ -17,7 +18,7 @@ Moneta is firstever cryptocurrency intrgrated Zerocoin extention ( http://zeroco
  - 5 block retarget using BRNDF with a 36 block lookback
 
 For more information, as well as an immediately useable, binary version of
-the moneta client sofware, see https://github.com/moneta/moneta/releases.
+the moneta client sofware, see https://github.com/MonetaOfficial/moneta/releases.
 
 License
 -------
