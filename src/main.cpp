@@ -715,19 +715,19 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                     printf("UPDATING\n");
                                     // GET MAX ID
                                     int currentId = 1;
-                                    BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
-                                        if(pubCoinItem.id > currentId){
-                                            currentId = pubCoinItem.id;
+                                    BOOST_FOREACH(const CZerocoinEntry& maxIdPubcoin, listPubCoin){
+                                        if(maxIdPubcoin.id > currentId && maxIdPubcoin.denomination == pubCoinItem.denomination){
+                                            currentId = maxIdPubcoin.id;
                                         }
                                     }
 
                                     // FIND HOW MANY OF MAX ID
                                     int countExistingItems = 1;
-                                    BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
-                                        if(currentId == pubCoinItem.id){
+                                    BOOST_FOREACH(const CZerocoinEntry& countItemPubcoin, listPubCoin){
+                                        if(currentId == countItemPubcoin.id && countItemPubcoin.denomination == pubCoinItem.denomination){
                                             countExistingItems++;
                                         }
-                                        printf("pubCoinItem.id = %d\n", pubCoinItem.id);
+                                        printf("pubCoinItem.id = %d\n", countItemPubcoin.id);
                                     }
 
                                     // IF IT IS NOT 10 -> ADD MORE
@@ -745,7 +745,7 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                                 pubCoinTx.randomness = pubCoinItem.randomness;
                                 pubCoinTx.serialNumber = pubCoinItem.serialNumber;
                                 pubCoinTx.value = pubCoinItem.value;
-                                printf("UPDATE PUBCOIN ID: %d\n", pubCoinTx.id);
+                                printf("UPDATE DENOMINATION: %d ID: %d\n", pubCoinTx.denomination, pubCoinTx.id);
                                 walletdb.WriteZerocoinEntry(pubCoinTx);
                                 isAlreadyStored = true;
                                 break;
@@ -759,8 +759,10 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                             printf("INSERTING\n");
                             // GET MAX ID
                             int currentId = 1;
+
+                            // SEPARATE BY DENOMINATION
                             BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
-                                if(pubCoinItem.id > currentId){
+                                if(pubCoinItem.id > currentId && pubCoinItem.denomination == denomination){
                                     currentId = pubCoinItem.id;
                                 }
                             }
@@ -768,10 +770,10 @@ bool CTransaction::CheckTransaction(CValidationState &state, uint256 hashTx, boo
                             // FIND HOW MANY OF MAX ID
                             int countExistingItems = 1;
                             BOOST_FOREACH(const CZerocoinEntry& pubCoinItem, listPubCoin){
-                                if(currentId == pubCoinItem.id){
+                                if(currentId == pubCoinItem.id && pubCoinItem.denomination == denomination){
                                     countExistingItems++;
                                 }
-                                printf("pubCoinItem.id = %d\n", pubCoinItem.id);
+                                printf("DENOMINATION = %d ID = %d\n", pubCoinItem.denomination, pubCoinItem.id);
                             }
 
                             // IF IT IS NOT 10 -> ADD MORE
@@ -2167,6 +2169,8 @@ unsigned int static BorisRidiculouslyNamedDifficultyFunction(const CBlockIndex* 
 
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
+    return bnProofOfWorkLimit.GetCompact();
+
     static const uint32_t        BlocksTargetSpacing                        = 1 * 60; // 1 minutes
         unsigned int                TimeDaySeconds                                = 60 * 60 * 24;
         int64                                PastSecondsMin                                = TimeDaySeconds * 0.25; // 21600
